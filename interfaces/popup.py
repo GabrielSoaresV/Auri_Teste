@@ -1,11 +1,11 @@
 import os
 import customtkinter as ctk
-from theme.colors import COLORS
 from PIL import Image, ImageSequence, ImageTk, UnidentifiedImageError
+from theme.colors import COLORS
 
 class PopupGif(ctk.CTkToplevel):
-    def _init_(self, master):
-        super()._init_(master)
+    def __init__(self, master):
+        super().__init__(master)
         self.title("Alerta!")
         self.geometry("600x400")
         self.configure(fg_color="black")
@@ -24,18 +24,12 @@ class PopupGif(ctk.CTkToplevel):
 
         try:
             gif = Image.open(gif_path)
-        except (FileNotFoundError, UnidentifiedImageError, OSError):
-            self.label.configure(text="Alerta (GIF) não disponível", fg_color=COLORS.get("bg_primary", "#000"))
-            self.after(2000, self.destroy)
-            return
-
-        try:
             for frame in ImageSequence.Iterator(gif):
                 img = frame.convert("RGBA")
                 photo = ImageTk.PhotoImage(img)
                 self._frames.append(photo)
-        except Exception:
-            self.label.configure(text="Erro ao processar GIF")
+        except (FileNotFoundError, UnidentifiedImageError, OSError):
+            self.label.configure(text="Alerta (GIF) não disponível", fg_color=COLORS.get("bg_primary", "#000"))
             self.after(2000, self.destroy)
             return
 
@@ -47,12 +41,8 @@ class PopupGif(ctk.CTkToplevel):
             return
 
         frame = self._frames[self._frame_index]
-        try:
-            self.label.configure(image=frame, text="")
-            self.label.image = frame
-        except Exception:
-            self.destroy()
-            return
+        self.label.configure(image=frame, text="")
+        self.label.image = frame
 
         self._frame_index += 1
         if self._frame_index >= len(self._frames):
